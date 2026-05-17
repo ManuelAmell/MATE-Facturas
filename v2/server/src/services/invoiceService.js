@@ -172,7 +172,7 @@ function calculateInvoiceTotals(items, options = {}) {
     const line_subtotal = quantity * unit_price;
     const line_discount = line_subtotal * (item_discount_percent / 100);
     const line_base_iva = line_subtotal - line_discount;
-    const line_iva = line_base_iva * (parseFloat(item.iva_rate || iva_rate) / 100);
+    const line_iva = line_base_iva * (parseFloat(item.iva_rate ?? iva_rate) / 100);
     const line_total = line_base_iva + line_iva;
 
     subtotal += line_subtotal;

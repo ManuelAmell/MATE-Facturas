@@ -450,7 +450,7 @@ async function updateInvoice(req, res) {
         const quantity = parseFloat(item.quantity) || 0;
         const unit_price = parseFloat(item.unit_price) || 0;
         const discount_percent = parseFloat(item.discount_percent) || 0;
-        const iva_rate = !isNaN(parseFloat(item.iva_rate)) ? parseFloat(item.iva_rate) : 19;
+const iva_rate = parseFloat(item.iva_rate ?? '0');
 
         const line_subtotal = quantity * unit_price;
         const line_discount = line_subtotal * (discount_percent / 100);
