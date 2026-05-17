@@ -138,9 +138,11 @@ async function getInvoiceById(req, res) {
  * Crea una nueva factura
  */
 async function createInvoice(req, res) {
-  const transaction = await sequelize.transaction();
+  let transaction;
 
   try {
+    transaction = await sequelize.transaction();
+
     const {
       company_id,
       customer_id,
@@ -341,7 +343,7 @@ async function createInvoice(req, res) {
       data: createdInvoice
     });
   } catch (error) {
-    await transaction.rollback();
+    if (transaction) await transaction.rollback();
     console.error('Error createInvoice:', error);
     res.status(500).json({
       success: false,
@@ -355,9 +357,11 @@ async function createInvoice(req, res) {
  * Actualiza una factura
  */
 async function updateInvoice(req, res) {
-  const transaction = await sequelize.transaction();
+  let transaction;
 
   try {
+    transaction = await sequelize.transaction();
+
     const { id } = req.params;
     const {
       customer_id,
@@ -495,7 +499,7 @@ const iva_rate = parseFloat(item.iva_rate ?? '0');
       data: updatedInvoice
     });
   } catch (error) {
-    await transaction.rollback();
+    if (transaction) await transaction.rollback();
     console.error('Error updateInvoice:', error);
     res.status(500).json({
       success: false,

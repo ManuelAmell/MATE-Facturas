@@ -105,10 +105,10 @@ export function generateInvoicePDF(invoiceData) {
     item.description || '',
     item.quantity,
     item.unit || 'UND',
-    item.unit_price?.toFixed(2) || '0.00',
-    `${item.iva_rate || 19}%`,
-    (item.subtotal || 0).toFixed(2),
-    (item.total || 0).toFixed(2)
+    (Number(item.unit_price) || 0).toFixed(2),
+    `${Number(item.iva_rate) || 0}%`,
+    (Number(item.subtotal) || 0).toFixed(2),
+    (Number(item.total) || 0).toFixed(2)
   ]);
 
   doc.autoTable({
@@ -155,26 +155,26 @@ export function generateInvoicePDF(invoiceData) {
 
   // Subtotal
   doc.text('Subtotal:', totalsX, yPos);
-  doc.text(`$${(invoiceData.subtotal || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
+  doc.text(`$${(Number(invoiceData.subtotal) || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
   yPos += 6;
 
   // Discount
-  if (invoiceData.discount_amount > 0) {
+  if (Number(invoiceData.discount_amount) > 0) {
     doc.text('Descuentos:', totalsX, yPos);
     doc.setTextColor(200, 0, 0);
-    doc.text(`-$${invoiceData.discount_amount.toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
+    doc.text(`-$${(Number(invoiceData.discount_amount) || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
     doc.setTextColor(0);
     yPos += 6;
   }
 
   // Base IVA
   doc.text('Base IVA:', totalsX, yPos);
-  doc.text(`$${(invoiceData.base_iva || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
+  doc.text(`$${(Number(invoiceData.base_iva) || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
   yPos += 6;
 
   // IVA
   doc.text('IVA (19%):', totalsX, yPos);
-  doc.text(`$${(invoiceData.iva_amount || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
+  doc.text(`$${(Number(invoiceData.iva_amount) || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
   yPos += 8;
 
   // Total
@@ -182,7 +182,7 @@ export function generateInvoicePDF(invoiceData) {
   doc.setFont('helvetica', 'bold');
   doc.text('TOTAL A PAGAR:', totalsX, yPos);
   doc.setTextColor(0, 0, 0);
-  doc.text(`$${(invoiceData.total || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
+  doc.text(`$${(Number(invoiceData.total) || 0).toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
 
   // ============================================
   // VALUE IN WORDS

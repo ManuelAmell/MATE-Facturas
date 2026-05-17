@@ -49,11 +49,11 @@ export default function InvoicePreview({
 
   if (isMobile) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-4 mt-4 border border-gray-100">
+      <div className="bg-white p-4 mt-4 border border-gray-200">
         <div className="text-center text-sm text-gray-500 mb-3">
           Vista previa móvil - Activa el modo escritorio para mejor visualización
         </div>
-        <div className="bg-gray-50 rounded-lg p-4 text-center">
+        <div className="bg-gray-50 p-4 text-center">
           <p className="text-gray-400 text-sm">La previsualización completa se muestra en pantallas grandes</p>
         </div>
       </div>
@@ -61,161 +61,191 @@ export default function InvoicePreview({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 transition-all duration-300">
-      {/* Contenido de la Factura estilo A4 */}
-      <div className="relative">
-        <div className="p-6 bg-white min-h-[600px] max-h-[800px] overflow-y-auto">
-          {/* Header */}
-          <div className="flex justify-between items-start mb-6 pb-4 border-b-2 border-purple-600">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
-                <img
-                  src="/logoSF.png"
-                  alt="Logo"
-                  className="h-14 w-14 object-contain"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling?.style && (e.target.nextSibling.style.display = 'flex');
-                  }}
-                />
-                <div className="hidden items-center justify-center h-full w-full bg-purple-600 text-white font-bold text-xl">
-                  {company?.name?.charAt(0) || 'E'}
-                </div>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-800">{company?.name || 'Mi Empresa'}</h2>
-                <p className="text-xs text-gray-500">NIT: {company?.nit || '000.000.000-0'}</p>
-                <p className="text-xs text-gray-500">{company?.address || 'Carrera 00 # 00-00'}</p>
-                <p className="text-xs text-gray-500">{company?.municipality || 'Bogotá D.C.'}</p>
+    <div className="bg-white border border-gray-200 max-w-5xl mx-auto">
+      <div className="p-8">
+        {/* ============================================================
+            HEADER
+            ============================================================ */}
+        <div className="flex justify-between items-start border-b border-gray-300 pb-4 mb-6">
+          {/* Izquierda: Logo + Empresa */}
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 border border-gray-200 flex items-center justify-center overflow-hidden">
+              <img
+                src="/logoSF.png"
+                alt="Logo"
+                className="h-12 w-12 object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center h-full w-full bg-gray-100 text-gray-500 font-bold text-lg">
+                {company?.name?.charAt(0) || 'E'}
               </div>
             </div>
-            <div className="text-right">
-              <h1 className="text-xl font-bold text-purple-700">FACTURA DE VENTA</h1>
-              <p className="text-sm text-gray-600 mt-1">No. <span className="font-mono font-semibold">{invoiceNumber}</span></p>
-              <p className="text-sm text-gray-600">Fecha: {today}</p>
-              <p className="text-xs text-gray-400 mt-1">Estado: No guardada</p>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">{company?.name || 'Mi Empresa'}</h2>
+              <p className="text-xs text-gray-500">NIT: {company?.nit || '000.000.000-0'}</p>
+              <p className="text-xs text-gray-500">{company?.address || 'Carrera 00 # 00-00'}</p>
+              <p className="text-xs text-gray-500">{company?.municipality || 'Bogotá D.C.'}</p>
             </div>
           </div>
 
-          {/* Datos del Cliente */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-semibold text-purple-700 mb-2 border-b pb-1">DATOS DEL CLIENTE</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span className="text-gray-500 text-xs">Nombre:</span>
-                <p className="font-medium text-gray-800">{customer?.name || '—'}</p>
-              </div>
-              <div>
-                <span className="text-gray-500 text-xs">NIT / Identificación:</span>
-                <p className="font-medium text-gray-800">{customer?.identification || '—'}</p>
-              </div>
-              <div>
-                <span className="text-gray-500 text-xs">Teléfono:</span>
-                <p className="font-medium text-gray-800">{customer?.phone || '—'}</p>
-              </div>
-              <div>
-                <span className="text-gray-500 text-xs">Correo:</span>
-                <p className="font-medium text-gray-800">{customer?.email || '—'}</p>
-              </div>
-              <div className="col-span-2">
-                <span className="text-gray-500 text-xs">Dirección:</span>
-                <p className="font-medium text-gray-800">
-                  {[customer?.address, customer?.municipality, customer?.department].filter(Boolean).join(', ') || '—'}
-                </p>
-              </div>
+          {/* Derecha: Título + Datos */}
+          <div className="text-right">
+            <h1 className="text-base font-bold text-gray-800 tracking-wide">FACTURA ELECTRÓNICA DE VENTA</h1>
+            <p className="text-sm text-gray-600 mt-1">No. <span className="font-mono font-semibold">{invoiceNumber}</span></p>
+            <p className="text-sm text-gray-600">Fecha: {today}</p>
+            <p className="text-xs text-gray-400 mt-1">Estado: No guardada</p>
+          </div>
+        </div>
+
+        {/* Resolución */}
+        {company?.resolution_number && (
+          <p className="text-xs text-gray-400 mb-6">
+            Resolución DIAN: {company.resolution_number}
+          </p>
+        )}
+
+        {/* ============================================================
+            INFORMACIÓN GENERAL — 3 columnas
+            ============================================================ */}
+        <div className="grid grid-cols-3 gap-6 mb-6">
+          {/* EMISOR */}
+          <div>
+            <h3 className="text-xs uppercase font-bold text-gray-700 mb-2 tracking-wider">Emisor</h3>
+            <div className="space-y-1 text-sm">
+              <p className="text-gray-800 font-medium">{company?.name || '—'}</p>
+              <p className="text-gray-500 text-xs">NIT: {company?.nit || '—'}</p>
+              <p className="text-gray-500 text-xs">{company?.address || '—'}</p>
+              <p className="text-gray-500 text-xs">{company?.phone || '—'}</p>
             </div>
           </div>
 
-          {/* Tabla de Productos */}
-          <div className="mb-6 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-purple-600 text-white">
-                <tr>
-                  <th className="px-3 py-2 text-left text-xs font-semibold">Código</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold">Descripción</th>
-                  <th className="px-3 py-2 text-right text-xs font-semibold">Cant.</th>
-                  <th className="px-3 py-2 text-right text-xs font-semibold">Precio</th>
-                  <th className="px-3 py-2 text-right text-xs font-semibold">IVA</th>
-                  <th className="px-3 py-2 text-right text-xs font-semibold">Subtotal</th>
+          {/* CLIENTE */}
+          <div>
+            <h3 className="text-xs uppercase font-bold text-gray-700 mb-2 tracking-wider">Cliente</h3>
+            <div className="space-y-1 text-sm">
+              <p className="text-gray-800 font-medium">{customer?.name || '—'}</p>
+              <p className="text-gray-500 text-xs">NIT: {customer?.identification || '—'}</p>
+              <p className="text-gray-500 text-xs">{customer?.address || '—'}</p>
+              <p className="text-gray-500 text-xs">{customer?.email || '—'}</p>
+              <p className="text-gray-500 text-xs">{customer?.phone || '—'}</p>
+            </div>
+          </div>
+
+          {/* PAGO */}
+          <div>
+            <h3 className="text-xs uppercase font-bold text-gray-700 mb-2 tracking-wider">Pago</h3>
+            <div className="space-y-1 text-sm">
+              <p className="text-gray-500 text-xs">Forma: <span className="text-gray-800">{getPaymentFormLabel(payment_form)}</span></p>
+              <p className="text-gray-500 text-xs">Método: <span className="text-gray-800">{getPaymentMethodLabel(payment_method)}</span></p>
+              <p className="text-gray-500 text-xs">Moneda: <span className="text-gray-800">{currency || 'COP'}</span></p>
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================================
+            TABLA DE PRODUCTOS
+            ============================================================ */}
+        <div className="mb-6">
+          {items.length > 0 ? (
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-gray-700">
+                  <th className="px-3 py-2 text-left text-xs font-semibold border-b border-gray-200">#</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold border-b border-gray-200">Código</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold border-b border-gray-200">Descripción</th>
+                  <th className="px-3 py-2 text-right text-xs font-semibold border-b border-gray-200">Cant.</th>
+                  <th className="px-3 py-2 text-right text-xs font-semibold border-b border-gray-200">Precio</th>
+                  <th className="px-3 py-2 text-right text-xs font-semibold border-b border-gray-200">IVA</th>
+                  <th className="px-3 py-2 text-right text-xs font-semibold border-b border-gray-200">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
-                {items.length > 0 ? (
-                  items.map((item, index) => (
-                    <tr key={item.id || index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="px-3 py-2 text-gray-600">{item.code || '—'}</td>
-                      <td className="px-3 py-2 text-gray-800 font-medium">{item.description || 'Producto'}</td>
-                      <td className="px-3 py-2 text-right text-gray-600">{item.quantity}</td>
-                      <td className="px-3 py-2 text-right text-gray-600">{formatCurrency(item.unit_price)}</td>
-                      <td className="px-3 py-2 text-right text-gray-600">{item.iva_rate || 0}%</td>
-                      <td className="px-3 py-2 text-right font-medium text-gray-800">{formatCurrency(item.subtotal)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-3 py-8 text-center text-gray-400">
-                      <div className="flex flex-col items-center gap-2">
-                        <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <span>No hay productos agregados</span>
-                      </div>
-                    </td>
+                {items.map((item, index) => (
+                  <tr key={item.id || index} className="border-b border-gray-100">
+                    <td className="px-3 py-2 text-gray-600">{index + 1}</td>
+                    <td className="px-3 py-2 text-gray-600">{item.code || '—'}</td>
+                    <td className="px-3 py-2 text-gray-800">{item.description || 'Producto'}</td>
+                    <td className="px-3 py-2 text-right text-gray-600">{item.quantity}</td>
+                    <td className="px-3 py-2 text-right text-gray-600">{formatCurrency(item.unit_price)}</td>
+                    <td className="px-3 py-2 text-right text-gray-600">{item.iva_rate || 0}%</td>
+                    <td className="px-3 py-2 text-right font-medium text-gray-800">{formatCurrency(item.subtotal)}</td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
-          </div>
+          ) : (
+            <div className="text-center py-12 text-gray-400">
+              <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <p className="text-sm">No hay productos agregados</p>
+            </div>
+          )}
+        </div>
 
-          {/* Totales */}
-          <div className="flex justify-end mb-6">
-            <div className="w-64">
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal:</span>
-                  <span className="font-medium">{formatCurrency(totals.subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>IVA ({totals.baseIva > 0 ? '19%' : '0%'}):</span>
-                  <span className="font-medium">{formatCurrency(totals.ivaAmount)}</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold text-purple-700 pt-2 border-t border-purple-200">
-                  <span>TOTAL:</span>
-                  <span>{formatCurrency(totals.total)}</span>
-                </div>
+        {/* ============================================================
+            TOTALES
+            ============================================================ */}
+        <div className="flex justify-end mb-6">
+          <div className="w-72">
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal:</span>
+                <span className="font-medium">{formatCurrency(totals.subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>IVA ({totals.baseIva > 0 ? '19%' : '0%'}):</span>
+                <span className="font-medium">{formatCurrency(totals.ivaAmount)}</span>
+              </div>
+              <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-300">
+                <span>TOTAL A PAGAR:</span>
+                <span>{formatCurrency(totals.total)}</span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Método de Pago y Notas */}
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-gray-700 mb-1">Método de Pago</h4>
-              <p className="text-gray-600">
-                {getPaymentFormLabel(payment_form)} - {getPaymentMethodLabel(payment_method)}
-              </p>
-            </div>
+        {/* ============================================================
+            VALOR EN LETRAS
+            ============================================================ */}
+        {totals.totalLetters && (
+          <div className="mb-6">
+            <h3 className="text-xs uppercase font-bold text-gray-700 mb-1 tracking-wider">Valor en Letras</h3>
+            <p className="text-sm text-gray-600">{totals.totalLetters}</p>
+          </div>
+        )}
+
+        {/* ============================================================
+            NOTAS Y TÉRMINOS
+            ============================================================ */}
+        {(notes || terms) && (
+          <div className="mb-6 space-y-4">
             {notes && (
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <h4 className="font-semibold text-gray-700 mb-1">Notas</h4>
-                <p className="text-gray-600 text-xs">{notes}</p>
+              <div>
+                <h3 className="text-xs uppercase font-bold text-gray-700 mb-1 tracking-wider">Notas</h3>
+                <p className="text-sm text-gray-600">{notes}</p>
+              </div>
+            )}
+            {terms && (
+              <div>
+                <h3 className="text-xs uppercase font-bold text-gray-700 mb-1 tracking-wider">Términos</h3>
+                <p className="text-sm text-gray-600">{terms}</p>
               </div>
             )}
           </div>
-          
+        )}
 
-          {/* Footer */}
- 
-          <div className="flex justify-center">
-          <img 
-            src="/MetodoPago.png" 
-            alt="Cuenta Nequi" 
-            className="w-200 object-contain"
-                  />
-            </div>
-          <div className="mt-6 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
-            <p>Factura</p>
-          </div>
+        {/* ============================================================
+            FOOTER
+            ============================================================ */}
+            <img src="public/MetodoPago.png" alt="Logo" className="mx-auto mb-2" />
+        <div className="border-t border-gray-200 pt-4 text-center">
+          <p className="text-xs text-gray-400">
+            Esta factura es un documento electrónico de venta según normativa DIAN.
+          </p>
         </div>
       </div>
     </div>

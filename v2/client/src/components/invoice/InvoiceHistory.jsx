@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getInvoices, getCustomersList, getInvoiceById } from '../../services/apiService';
 import { downloadInvoicePDF } from '../../services/invoiceService';
+import InvoicePreview from './InvoicePreview';
 
 export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState([]);
@@ -17,6 +18,7 @@ export default function InvoiceHistory() {
     end_date: ''
   });
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   useEffect(() => {
     loadCustomers();
@@ -24,7 +26,7 @@ export default function InvoiceHistory() {
 
   useEffect(() => {
     loadInvoices();
-  }, [filters.customer_id, filters.status, filters.start_date, filters.end_date, pagination.page]);
+  }, [filters.customer_id, filters.status, filters.start_date, filters.end_date, pagination.page, filters.search, searchTrigger]);
 
   const loadCustomers = async () => {
     try {
@@ -67,7 +69,7 @@ export default function InvoiceHistory() {
 
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, page: 1 }));
-    loadInvoices();
+    setSearchTrigger(prev => prev + 1);
   };
 
   const handleFilterChange = (field, value) => {
@@ -91,7 +93,10 @@ export default function InvoiceHistory() {
   };
 
   const handleDownloadPDF = async (invoice) => {
-    await downloadInvoicePDF(invoice.id);
+    const result = await downloadInvoicePDF(invoice);
+    if (!result.success) {
+      setError(result.message || 'Error al descargar PDF');
+    }
   };
 
   const handleViewInvoice = async (invoice) => {
@@ -294,153 +299,49 @@ export default function InvoiceHistory() {
       {/* Modal de Detalles */}
       {selectedInvoice && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900">Detalles de Factura</h3>
+          <div className="bg-white max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
+              <h3 className="text-base font-semibold text-gray-900">Detalles de Factura</h3>
               <button
                 onClick={() => setSelectedInvoice(null)}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
               >
                 ×
               </button>
             </div>
 
-            {/* Contenido */}
-            <div className="p-6 space-y-6">
-              {/* Datos principales */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Número de Factura</p>
-                  <p className="font-semibold text-gray-900">{selectedInvoice.invoice_number}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Estado</p>
-                  {getStatusBadge(selectedInvoice.status)}
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Fecha de Emisión</p>
-                  <p className="text-gray-900">{formatDate(selectedInvoice.issue_date)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Forma de Pago</p>
-                  <p className="text-gray-900 capitalize">{selectedInvoice.payment_form}</p>
-                </div>
-              </div>
+            {/* InvoicePreview con datos mapeados */}
+            <InvoicePreview
+              company={selectedInvoice.company}
+              customer={selectedInvoice.customer}
+              items={selectedInvoice.items}
+              totals={{
+                subtotal: selectedInvoice.subtotal,
+                totalDiscount: selectedInvoice.discount_amount,
+                baseIva: selectedInvoice.base_iva,
+                ivaAmount: selectedInvoice.iva_amount,
+                total: selectedInvoice.total,
+                totalLetters: selectedInvoice.total_letters
+              }}
+              payment_form={selectedInvoice.payment_form}
+              payment_method={selectedInvoice.payment_method}
+              currency={selectedInvoice.currency}
+              notes={selectedInvoice.notes}
+              terms={selectedInvoice.terms}
+            />
 
-              {/* Cliente */}
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Datos del Cliente</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">Nombre</p>
-                    <p className="font-medium">{selectedInvoice.customer?.name || '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">NIT/Identificación</p>
-                    <p className="font-medium">{selectedInvoice.customer?.identification || '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Email</p>
-                    <p className="font-medium">{selectedInvoice.customer?.email || '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Teléfono</p>
-                    <p className="font-medium">{selectedInvoice.customer?.phone || '—'}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-gray-500">Dirección</p>
-                    <p className="font-medium">{selectedInvoice.customer?.address || '—'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Items */}
-              {selectedInvoice.items && selectedInvoice.items.length > 0 && (
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Items</h4>
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-2 py-2 text-left text-xs text-gray-500">Descripción</th>
-                        <th className="px-2 py-2 text-right text-xs text-gray-500">Cant.</th>
-                        <th className="px-2 py-2 text-right text-xs text-gray-500">Precio</th>
-                        <th className="px-2 py-2 text-right text-xs text-gray-500">IVA</th>
-                        <th className="px-2 py-2 text-right text-xs text-gray-500">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {selectedInvoice.items.map((item, idx) => (
-                        <tr key={idx}>
-                          <td className="px-2 py-2">{item.description}</td>
-                          <td className="px-2 py-2 text-right">{item.quantity}</td>
-                          <td className="px-2 py-2 text-right">{formatCurrency(item.unit_price)}</td>
-                          <td className="px-2 py-2 text-right">{item.iva_rate}%</td>
-                          <td className="px-2 py-2 text-right font-medium">{formatCurrency(item.total)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Totales */}
-              <div className="border-t pt-4">
-                <div className="flex justify-end">
-                  <div className="w-64 space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Subtotal</span>
-                      <span className="font-medium">{formatCurrency(selectedInvoice.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">IVA</span>
-                      <span className="font-medium">{formatCurrency(selectedInvoice.iva_amount)}</span>
-                    </div>
-                    {selectedInvoice.discount_amount > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Descuento</span>
-                        <span className="font-medium text-red-600">-{formatCurrency(selectedInvoice.discount_amount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between border-t pt-2 font-bold text-base">
-                      <span>Total</span>
-                      <span>{formatCurrency(selectedInvoice.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Datos DIAN */}
-              {selectedInvoice.cufe && (
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Información DIAN</h4>
-                  <div className="text-xs space-y-1">
-                    <p><span className="text-gray-500">CUFE:</span> <span className="font-mono text-gray-700">{selectedInvoice.cufe}</span></p>
-                    {selectedInvoice.uuid && <p><span className="text-gray-500">UUID:</span> <span className="font-mono text-gray-700">{selectedInvoice.uuid}</span></p>}
-                  </div>
-                </div>
-              )}
-
-              {/* Notas */}
-              {selectedInvoice.notes && (
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-1">Notas</h4>
-                  <p className="text-sm text-gray-600">{selectedInvoice.notes}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            {/* Footer del modal */}
+            <div className="flex justify-end gap-3 px-6 py-3 border-t border-gray-200">
               <button
                 onClick={() => setSelectedInvoice(null)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-100 transition-colors"
               >
                 Cerrar
               </button>
               <button
                 onClick={() => handleDownloadPDF(selectedInvoice)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                className="px-4 py-2 bg-gray-800 text-white rounded text-sm font-medium hover:bg-gray-900 transition-colors"
               >
                 Descargar PDF
               </button>

@@ -1,3 +1,5 @@
+import { generateInvoicePDF } from '../utils/pdfGenerator';
+
 const API_URL = '/api';
 
 /**
@@ -98,22 +100,19 @@ async function cancelInvoice(id, reason = '') {
 }
 
 /**
- * Descarga el PDF de una factura
+ * Descarga el PDF de una factura (usa pdfGenerator.js)
  */
 async function downloadPDF(id) {
   try {
-    const response = await fetch(`${API_URL}/invoices/${id}/pdf`);
-    if (!response.ok) throw new Error('Error al generar PDF');
+    const res = await getInvoiceById(id);
+    if (!res.success || !res.data) {
+      throw new Error(res.message || 'No se pudo obtener la factura');
+    }
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `factura-${id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    a.remove();
+    const invoice = res.data;
+    const doc = generateInvoicePDF(invoice);
+    const filename = `factura-${invoice.invoice_number}.pdf`;
+    doc.save(filename);
 
     return { success: true };
   } catch (error) {
@@ -235,10 +234,32 @@ function calculateTotals(items, discountPercent = 0) {
 }
 
 /**
- * Descarga el PDF de una factura (alias)
+ * Descarga el PDF de una factura (generación del lado del cliente)
+ * Acepta un ID o un objeto factura completo
  */
-export async function downloadInvoicePDF(id) {
-  return await downloadPDF(id);
+export async function downloadInvoicePDF(idOrInvoice) {
+  try {
+    let invoice;
+    if (typeof idOrInvoice === 'object' && idOrInvoice.items) {
+      invoice = idOrInvoice;
+    } else {
+      const id = typeof idOrInvoice === 'object' ? idOrInvoice.id : idOrInvoice;
+      const res = await getInvoiceById(id);
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'No se pudo obtener la factura');
+      }
+      invoice = res.data;
+    }
+
+    const doc = generateInvoicePDF(invoice);
+    const filename = `factura-${invoice.invoice_number}.pdf`;
+    doc.save(filename);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error downloading PDF:', error);
+    return { success: false, message: error.message };
+  }
 }
 
 export const invoiceService = {
