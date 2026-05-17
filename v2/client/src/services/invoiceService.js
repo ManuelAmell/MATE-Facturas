@@ -206,7 +206,7 @@ function calculateTotals(items, discountPercent = 0) {
     const quantity = parseFloat(item.quantity) || 0;
     const unitPrice = parseFloat(item.unit_price) || 0;
     const itemDiscount = parseFloat(item.discount_percent) || 0;
-    const ivaRate = parseFloat(item.iva_rate) || 19;
+    const ivaRate = parseFloat(item.iva_rate ?? 0);
 
     const lineSubtotal = quantity * unitPrice;
     const lineDiscount = lineSubtotal * (itemDiscount / 100);

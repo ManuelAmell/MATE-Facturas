@@ -202,10 +202,19 @@ export default function InvoicePreview({
               </div>
             )}
           </div>
+          
 
           {/* Footer */}
+ 
+          <div className="flex justify-center">
+          <img 
+            src="/MetodoPago.png" 
+            alt="Cuenta Nequi" 
+            className="w-200 object-contain"
+                  />
+            </div>
           <div className="mt-6 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
-            <p>Sistema de Facturación Electrónica - Previsualización en tiempo real</p>
+            <p>Factura</p>
           </div>
         </div>
       </div>

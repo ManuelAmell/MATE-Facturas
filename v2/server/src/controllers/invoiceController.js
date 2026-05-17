@@ -264,7 +264,7 @@ async function createInvoice(req, res) {
     // Crear la factura
     const invoice = await Invoice.create({
       company_id,
-      customer_id,
+      customer_id: customer.id,
       invoice_number: invoiceNumber,
       uuid,
       cufe,
