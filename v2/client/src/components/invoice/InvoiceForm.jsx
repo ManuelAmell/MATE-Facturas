@@ -19,6 +19,13 @@ export default function InvoiceForm({
     loadProducts();
   }, []);
 
+  useEffect(() => {
+    if (activeTab === 'items') {
+      loadProducts('');
+      setSearchTerm('');
+    }
+  }, [activeTab]);
+
   const loadProducts = async (search = '') => {
     const params = { limit: 20 };
     if (search) params.search = search;
