@@ -304,91 +304,74 @@ export default function InvoiceForm({
       {/* Items Tab */}
       {activeTab === 'items' && (
         <div className="space-y-4">
-          {/* Selector de productos mejorado */}
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
+          {/* Selector de productos tipo dropdown */}
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
-                <span className="font-medium text-gray-800">Catálogo de Productos</span>
+                <span className="font-semibold text-gray-800">Seleccionar del Catálogo</span>
               </div>
-              <button
-                onClick={() => setShowProductSearch(!showProductSearch)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  showProductSearch 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                }`}
-              >
-                {showProductSearch ? 'Cerrar' : 'Buscar producto'}
-              </button>
+              <span className="text-xs text-gray-500">{savedProducts.length} productos disponibles</span>
             </div>
-
-            {/* Búsqueda de productos */}
-            {showProductSearch && (
-              <div className="space-y-3">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Buscar por código o descripción..."
-                    value={searchTerm}
-                    onChange={e => { setSearchTerm(e.target.value); loadProducts(e.target.value); }}
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    autoFocus
-                  />
-                  {searchTerm && (
+            
+            {/* Campo de búsqueda */}
+            <div className="p-3 border-b bg-gray-50">
+              <input
+                type="text"
+                placeholder="🔍 Buscar por código o descripción..."
+                value={searchTerm}
+                onChange={e => { setSearchTerm(e.target.value); loadProducts(e.target.value); }}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              />
+            </div>
+            
+            {/* Lista de productos */}
+            <div className="max-h-64 overflow-y-auto">
+              {savedProducts.length > 0 ? (
+                <div className="divide-y divide-gray-100">
+                  {savedProducts.map(p => (
                     <button
-                      onClick={() => { setSearchTerm(''); loadProducts(''); }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      key={p.id}
+                      onClick={() => selectProduct(p)}
+                      className="w-full flex items-center justify-between p-4 hover:bg-purple-50 transition text-left group"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-                
-                {/* Lista de productos */}
-                {savedProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-                    {savedProducts.map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => selectProduct(p)}
-                        className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-purple-400 hover:shadow-md transition text-sm text-left group"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-800 truncate">
-                            {p.description || 'Sin nombre'}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {p.code && <span className="text-purple-600">{p.code}</span>}
-                            {p.code && p.unit && <span className="mx-1">•</span>}
-                            <span>{p.unit}</span>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 group-hover:text-purple-700">
+                          {p.description || 'Producto sin nombre'}
                         </div>
-                        <div className="ml-2 text-green-600 font-semibold whitespace-nowrap">
+                        <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                          {p.code && (
+                            <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                              {p.code}
+                            </span>
+                          )}
+                          <span>Unidad: {p.unit}</span>
+                          {p.iva_rate > 0 && (
+                            <span className="text-orange-600">IVA: {p.iva_rate}%</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="ml-4 text-right">
+                        <div className="text-lg font-bold text-green-600">
                           ${parseFloat(p.unit_price).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : searchTerm ? (
-                  <div className="text-center py-6 text-gray-400 bg-white rounded-lg">
-                    <svg className="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p>No se encontraron productos</p>
-                    <p className="text-xs mt-1">Crea productos en Configuración → Productos</p>
-                  </div>
-                ) : (
-                  <div className="text-center py-6 text-gray-400 bg-white rounded-lg">
-                    <p>Escribe para buscar productos</p>
-                  </div>
-                )}
-              </div>
-            )}
+                        <div className="text-xs text-gray-400">Click para agregar</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  <p className="text-gray-500 font-medium">No hay productos</p>
+                  <p className="text-gray-400 text-sm mt-1">Crea productos en Configuración → Productos</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Add Item Form */}
