@@ -103,4 +103,24 @@ async function findOrCreateCustomer(req, res) {
   }
 }
 
-module.exports = { getCustomers, createCustomer, findOrCreateCustomer };
+async function getCustomersList(req, res) {
+  try {
+    const { company_id } = req.query;
+    const whereClause = { is_active: true };
+
+    if (company_id) whereClause.company_id = company_id;
+
+    const customers = await Customer.findAll({
+      where: whereClause,
+      attributes: ['id', 'name', 'identification'],
+      order: [['name', 'ASC']]
+    });
+
+    res.json({ success: true, data: customers });
+  } catch (error) {
+    console.error('Error getCustomersList:', error);
+    res.status(500).json({ success: false, message: 'Error al obtener lista de clientes', error: error.message });
+  }
+}
+
+module.exports = { getCustomers, createCustomer, findOrCreateCustomer, getCustomersList };

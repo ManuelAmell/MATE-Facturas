@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { getInvoices, getCompany } from '../../services/apiService';
+import { getInvoices, getCustomersList } from '../../services/apiService';
 import { downloadInvoicePDF } from '../../services/invoiceService';
 
 export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState([]);
-  const [companies, setCompanies] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [filters, setFilters] = useState({
-    company_id: '',
+    customer_id: '',
     search: '',
     status: '',
     start_date: '',
@@ -17,21 +17,17 @@ export default function InvoiceHistory() {
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
 
   useEffect(() => {
-    loadCompanies();
+    loadCustomers();
   }, []);
 
   useEffect(() => {
     loadInvoices();
-  }, [filters.company_id, filters.status, filters.start_date, filters.end_date, pagination.page]);
+  }, [filters.customer_id, filters.status, filters.start_date, filters.end_date, pagination.page]);
 
-  const loadCompanies = async () => {
-    const res = await getCompany();
+  const loadCustomers = async () => {
+    const res = await getCustomersList();
     if (res.success) {
-      const compArray = Array.isArray(res.data) ? res.data : [res.data].filter(Boolean);
-      setCompanies(compArray);
-      if (compArray.length > 0 && !filters.company_id) {
-        setFilters(prev => ({ ...prev, company_id: compArray[0].id }));
-      }
+      setCustomers(res.data || []);
     }
   };
 
@@ -40,7 +36,7 @@ export default function InvoiceHistory() {
     const params = {
       page: pagination.page,
       limit: 10,
-      company_id: filters.company_id || undefined,
+      customer_id: filters.customer_id || undefined,
       status: filters.status || undefined,
       start_date: filters.start_date || undefined,
       end_date: filters.end_date || undefined,
@@ -114,15 +110,15 @@ export default function InvoiceHistory() {
       {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="lg:col-span-1">
-          <label className="block text-xs font-medium text-gray-600 mb-1">Empresa</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Cliente</label>
           <select
-            value={filters.company_id}
-            onChange={e => handleFilterChange('company_id', e.target.value)}
+            value={filters.customer_id}
+            onChange={e => handleFilterChange('customer_id', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">Todas las empresas</option>
-            {companies.map(comp => (
-              <option key={comp.id} value={comp.id}>{comp.name}</option>
+            <option value="">Todos los clientes</option>
+            {customers.map(customer => (
+              <option key={customer.id} value={customer.id}>{customer.name}</option>
             ))}
           </select>
         </div>

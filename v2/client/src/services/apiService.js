@@ -45,6 +45,7 @@ export const createCustomer = (data) => fetchAPI('/customers', {
 export const findOrCreateCustomer = (data) => fetchAPI('/customers/find-or-create', {
   method: 'POST', body: JSON.stringify(data)
 });
+export const getCustomersList = () => fetchAPI('/customers/list');
 
 // Invoices
 export const getInvoices = (params = {}) => {
