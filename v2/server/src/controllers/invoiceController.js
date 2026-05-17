@@ -32,8 +32,19 @@ async function getInvoices(req, res) {
       };
     }
 
+    const buildSearchWhere = () => {
+      const conditions = [];
+      if (search) {
+        conditions.push({ invoice_number: { [Op.like]: `%${search}%` } });
+      }
+      return conditions.length > 0 ? { [Op.or]: conditions } : {};
+    };
+
     const { count, rows } = await Invoice.findAndCountAll({
-      where: whereClause,
+      where: {
+        ...whereClause,
+        ...buildSearchWhere()
+      },
       include: [
         { model: Company, as: 'company', attributes: ['id', 'name', 'nit', 'email'] },
         {
@@ -45,15 +56,9 @@ async function getInvoices(req, res) {
               { identification: { [Op.like]: `%${search}%` } }
             ]
           } : undefined,
-          required: !!search
+          required: false
         }
       ],
-      where: search ? {
-        ...whereClause,
-        [Op.or]: [
-          { invoice_number: { [Op.like]: `%${search}%` } }
-        ]
-      } : whereClause,
       order: [['created_at', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset),

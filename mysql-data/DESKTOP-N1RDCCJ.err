@@ -1,0 +1,46 @@
+2026-05-17T01:26:08.029196Z 0 [System] [MY-015017] [Server] MySQL Server Initialization - start.
+2026-05-17T01:26:08.036491Z 0 [Warning] [MY-010915] [Server] 'NO_ZERO_DATE', 'NO_ZERO_IN_DATE' and 'ERROR_FOR_DIVISION_BY_ZERO' sql modes should be used with strict mode. They will be merged with strict mode in a future release.
+2026-05-17T01:26:08.037062Z 0 [System] [MY-013169] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe (mysqld 8.4.9) initializing of server in progress as process 12448
+2026-05-17T01:26:08.071365Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-17T01:26:08.666973Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-17T01:26:09.973269Z 6 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+2026-05-17T01:26:12.420436Z 0 [System] [MY-015018] [Server] MySQL Server Initialization - end.
+2026-05-17T01:26:36.127051Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-17T01:26:36.329489Z 0 [Warning] [MY-010915] [Server] 'NO_ZERO_DATE', 'NO_ZERO_IN_DATE' and 'ERROR_FOR_DIVISION_BY_ZERO' sql modes should be used with strict mode. They will be merged with strict mode in a future release.
+2026-05-17T01:26:36.329782Z 0 [System] [MY-010116] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe (mysqld 8.4.9) starting as process 29928
+2026-05-17T01:26:36.350038Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-17T01:26:36.656781Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-17T01:26:36.805506Z 0 [Warning] [MY-011311] [Server] Plugin mysqlx reported: 'All I/O interfaces are disabled, X Protocol won't be accessible'
+2026-05-17T01:26:37.041449Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-17T01:26:37.042562Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-17T01:26:37.064485Z 0 [System] [MY-010931] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: ready for connections. Version: '8.4.9'  socket: ''  port: 0  MySQL Community Server - GPL.
+2026-05-17T01:26:37.066970Z 0 [ERROR] [MY-010131] [Server] TCP/IP, --shared-memory, or --named-pipe should be configured on NT OS
+2026-05-17T01:26:37.067779Z 0 [ERROR] [MY-010119] [Server] Aborting
+2026-05-17T01:26:38.218019Z 0 [System] [MY-010910] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: Shutdown complete (mysqld 8.4.9)  MySQL Community Server - GPL.
+2026-05-17T01:26:38.218903Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2026-05-17T01:27:14.366850Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-17T01:27:14.633358Z 0 [Warning] [MY-010915] [Server] 'NO_ZERO_DATE', 'NO_ZERO_IN_DATE' and 'ERROR_FOR_DIVISION_BY_ZERO' sql modes should be used with strict mode. They will be merged with strict mode in a future release.
+2026-05-17T01:27:14.635069Z 0 [System] [MY-010116] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe (mysqld 8.4.9) starting as process 31276
+2026-05-17T01:27:14.697365Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-17T01:27:15.196648Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-17T01:27:15.477870Z 0 [Warning] [MY-011311] [Server] Plugin mysqlx reported: 'All I/O interfaces are disabled, X Protocol won't be accessible'
+2026-05-17T01:27:15.715543Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-17T01:27:15.716860Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-17T01:27:15.757806Z 0 [System] [MY-010931] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: ready for connections. Version: '8.4.9'  socket: ''  port: 0  MySQL Community Server - GPL.
+2026-05-17T01:27:15.760682Z 0 [ERROR] [MY-010131] [Server] TCP/IP, --shared-memory, or --named-pipe should be configured on NT OS
+2026-05-17T01:27:15.761475Z 0 [ERROR] [MY-010119] [Server] Aborting
+2026-05-17T01:27:16.987100Z 0 [System] [MY-010910] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: Shutdown complete (mysqld 8.4.9)  MySQL Community Server - GPL.
+2026-05-17T01:27:16.988198Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2026-05-17T01:28:30.311038Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-17T01:28:30.678623Z 0 [Warning] [MY-010915] [Server] 'NO_ZERO_DATE', 'NO_ZERO_IN_DATE' and 'ERROR_FOR_DIVISION_BY_ZERO' sql modes should be used with strict mode. They will be merged with strict mode in a future release.
+2026-05-17T01:28:30.680732Z 0 [System] [MY-010116] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe (mysqld 8.4.9) starting as process 7340
+2026-05-17T01:28:30.793346Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-17T01:28:31.175744Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-17T01:28:31.452574Z 0 [Warning] [MY-011311] [Server] Plugin mysqlx reported: 'All I/O interfaces are disabled, X Protocol won't be accessible'
+2026-05-17T01:28:31.682724Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-17T01:28:31.683978Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-17T01:28:31.719020Z 0 [System] [MY-010931] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: ready for connections. Version: '8.4.9'  socket: ''  port: 0  MySQL Community Server - GPL.
+2026-05-17T01:28:31.723227Z 0 [ERROR] [MY-010131] [Server] TCP/IP, --shared-memory, or --named-pipe should be configured on NT OS
+2026-05-17T01:28:31.724089Z 0 [ERROR] [MY-010119] [Server] Aborting
+2026-05-17T01:28:32.978049Z 0 [System] [MY-010910] [Server] C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe: Shutdown complete (mysqld 8.4.9)  MySQL Community Server - GPL.
+2026-05-17T01:28:32.979761Z 0 [System] [MY-015016] [Server] MySQL Server - end.
