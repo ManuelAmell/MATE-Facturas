@@ -13,6 +13,13 @@ async function fetchAPI(endpoint, options = {}) {
   }
 }
 
+function buildQueryString(params) {
+  const filtered = Object.entries(params).filter(([_, value]) => 
+    value !== undefined && value !== null && value !== ''
+  );
+  return new URLSearchParams(filtered).toString();
+}
+
 // Company
 export const getCompany = () => fetchAPI('/company');
 export const updateCompany = (id, data) => fetchAPI(`/company/${id}`, {
@@ -21,7 +28,7 @@ export const updateCompany = (id, data) => fetchAPI(`/company/${id}`, {
 
 // Products
 export const getProducts = (params = {}) => {
-  const query = new URLSearchParams(params).toString();
+  const query = buildQueryString(params);
   return fetchAPI(`/products?${query}`);
 };
 export const createProduct = (data) => fetchAPI('/products', {
@@ -36,7 +43,7 @@ export const deleteProduct = (id) => fetchAPI(`/products/${id}`, {
 
 // Customers
 export const getCustomers = (params = {}) => {
-  const query = new URLSearchParams(params).toString();
+  const query = buildQueryString(params);
   return fetchAPI(`/customers?${query}`);
 };
 export const createCustomer = (data) => fetchAPI('/customers', {
@@ -49,7 +56,7 @@ export const getCustomersList = () => fetchAPI('/customers/list');
 
 // Invoices
 export const getInvoices = (params = {}) => {
-  const query = new URLSearchParams(params).toString();
+  const query = buildQueryString(params);
   return fetchAPI(`/invoices?${query}`);
 };
 export const getInvoiceById = (id) => fetchAPI(`/invoices/${id}`);
