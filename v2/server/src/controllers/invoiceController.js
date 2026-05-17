@@ -226,9 +226,9 @@ async function createInvoice(req, res) {
 
     // Calcular totales
     const calculated = invoiceService.calculateInvoiceTotals(items, {
-      discount_percent: discount_percent || 0,
-      iva_rate: company.iva_percent || 19,
-      retention_percent: retention_percent || 0
+      discount_percent: discount_percent ?? 0,
+      iva_rate: company.iva_percent ?? 19,
+      retention_percent: retention_percent ?? 0
     });
 
     // Generar CUFE
@@ -291,7 +291,7 @@ async function createInvoice(req, res) {
       const quantity = parseFloat(item.quantity) || 0;
       const unit_price = parseFloat(item.unit_price) || 0;
       const discount_percent = parseFloat(item.discount_percent) || 0;
-      const iva_rate = parseFloat(item.iva_rate) || 19;
+      const iva_rate = !isNaN(parseFloat(item.iva_rate)) ? parseFloat(item.iva_rate) : 19;
 
       const line_subtotal = quantity * unit_price;
       const line_discount = line_subtotal * (discount_percent / 100);
@@ -396,9 +396,9 @@ async function updateInvoice(req, res) {
     let calculated = {};
     if (items && items.length > 0) {
       calculated = invoiceService.calculateInvoiceTotals(items, {
-        discount_percent: discount_percent || invoice.discount_percent || 0,
-        iva_rate: company.iva_percent || 19,
-        retention_percent: retention_percent || 0
+        discount_percent: discount_percent ?? invoice.discount_percent ?? 0,
+        iva_rate: company.iva_percent ?? 19,
+        retention_percent: retention_percent ?? 0
       });
     } else {
       calculated = {
@@ -445,7 +445,7 @@ async function updateInvoice(req, res) {
         const quantity = parseFloat(item.quantity) || 0;
         const unit_price = parseFloat(item.unit_price) || 0;
         const discount_percent = parseFloat(item.discount_percent) || 0;
-        const iva_rate = parseFloat(item.iva_rate) || 19;
+        const iva_rate = !isNaN(parseFloat(item.iva_rate)) ? parseFloat(item.iva_rate) : 19;
 
         const line_subtotal = quantity * unit_price;
         const line_discount = line_subtotal * (discount_percent / 100);

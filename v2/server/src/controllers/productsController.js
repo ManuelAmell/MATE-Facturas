@@ -58,7 +58,7 @@ async function createProduct(req, res) {
       description,
       unit_price,
       unit: unit || 'UND',
-      iva_rate: iva_rate || 19,
+      iva_rate: iva_rate ?? 19,
       cost
     });
 
