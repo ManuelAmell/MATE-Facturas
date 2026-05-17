@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getInvoices, getCustomersList } from '../../services/apiService';
+import { getInvoices, getCustomersList, getInvoiceById } from '../../services/apiService';
 import { downloadInvoicePDF } from '../../services/invoiceService';
 
 export default function InvoiceHistory() {
@@ -8,6 +8,7 @@ export default function InvoiceHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [filters, setFilters] = useState({
     customer_id: '',
     search: '',
@@ -91,6 +92,17 @@ export default function InvoiceHistory() {
 
   const handleDownloadPDF = async (invoice) => {
     await downloadInvoicePDF(invoice.id);
+  };
+
+  const handleViewInvoice = async (invoice) => {
+    setLoadingDetail(true);
+    const res = await getInvoiceById(invoice.id);
+    if (res.success) {
+      setSelectedInvoice(res.data);
+    } else {
+      setError(res.message || 'Error al cargar detalles');
+    }
+    setLoadingDetail(false);
   };
 
   const getStatusBadge = (status) => {
@@ -235,10 +247,11 @@ export default function InvoiceHistory() {
                   <td className="px-4 py-3 text-center">
                     <div className="flex justify-center gap-2">
                       <button
-                        onClick={() => setSelectedInvoice(inv)}
-                        className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors"
+                        onClick={() => handleViewInvoice(inv)}
+                        disabled={loadingDetail}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                       >
-                        Ver
+                        {loadingDetail ? '...' : 'Ver'}
                       </button>
                       <button
                         onClick={() => handleDownloadPDF(inv)}

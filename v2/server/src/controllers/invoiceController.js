@@ -57,8 +57,7 @@ async function getInvoices(req, res) {
             ]
           } : undefined,
           required: false
-        },
-        { model: InvoiceItem, as: 'items', attributes: ['id', 'line_number', 'code', 'description', 'quantity', 'unit', 'unit_price', 'iva_rate', 'iva_amount', 'subtotal', 'total'] }
+        }
       ],
       order: [['created_at', 'DESC']],
       limit: parseInt(limit),
