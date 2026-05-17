@@ -237,7 +237,7 @@ function calculateTotals(items, discountPercent = 0) {
 /**
  * Descarga el PDF de una factura (alias)
  */
-async function downloadInvoicePDF(id) {
+export async function downloadInvoicePDF(id) {
   return await downloadPDF(id);
 }
 

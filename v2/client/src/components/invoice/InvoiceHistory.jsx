@@ -6,6 +6,7 @@ export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [filters, setFilters] = useState({
     customer_id: '',
@@ -25,29 +26,42 @@ export default function InvoiceHistory() {
   }, [filters.customer_id, filters.status, filters.start_date, filters.end_date, pagination.page]);
 
   const loadCustomers = async () => {
-    const res = await getCustomersList();
-    if (res.success) {
-      setCustomers(res.data || []);
+    try {
+      const res = await getCustomersList();
+      if (res.success) {
+        setCustomers(res.data || []);
+      }
+    } catch (err) {
+      console.error('Error loading customers:', err);
     }
   };
 
   const loadInvoices = async () => {
     setLoading(true);
-    const params = {
-      page: pagination.page,
-      limit: 10,
-      customer_id: filters.customer_id || undefined,
-      status: filters.status || undefined,
-      start_date: filters.start_date || undefined,
-      end_date: filters.end_date || undefined,
-      search: filters.search || undefined
-    };
-    const res = await getInvoices(params);
-    if (res.success) {
-      setInvoices(res.data);
-      setPagination(prev => ({ ...prev, ...res.pagination }));
+    setError(null);
+    try {
+      const params = {
+        page: pagination.page,
+        limit: 10,
+        customer_id: filters.customer_id || undefined,
+        status: filters.status || undefined,
+        start_date: filters.start_date || undefined,
+        end_date: filters.end_date || undefined,
+        search: filters.search || undefined
+      };
+      const res = await getInvoices(params);
+      if (res.success) {
+        setInvoices(res.data || []);
+        setPagination(prev => ({ ...prev, ...res.pagination }));
+      } else {
+        setError(res.message || 'Error al cargar facturas');
+      }
+    } catch (err) {
+      console.error('Error loading invoices:', err);
+      setError('Error al conectar con el servidor');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSearch = () => {
@@ -106,6 +120,13 @@ export default function InvoiceHistory() {
           {pagination.total > 0 ? `${pagination.total} factura(s)` : ''}
         </span>
       </div>
+
+      {/* Error */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
 
       {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
