@@ -49,7 +49,7 @@ async function getInvoices(req, res) {
         { model: Company, as: 'company', attributes: ['id', 'name', 'nit', 'email'] },
         {
           model: Customer, as: 'customer',
-          attributes: ['id', 'name', 'identification', 'email'],
+          attributes: ['id', 'name', 'identification', 'email', 'phone', 'address'],
           where: search ? {
             [Op.or]: [
               { name: { [Op.like]: `%${search}%` } },
@@ -57,7 +57,8 @@ async function getInvoices(req, res) {
             ]
           } : undefined,
           required: false
-        }
+        },
+        { model: InvoiceItem, as: 'items', attributes: ['id', 'line_number', 'code', 'description', 'quantity', 'unit', 'unit_price', 'iva_rate', 'iva_amount', 'subtotal', 'total'] }
       ],
       order: [['created_at', 'DESC']],
       limit: parseInt(limit),

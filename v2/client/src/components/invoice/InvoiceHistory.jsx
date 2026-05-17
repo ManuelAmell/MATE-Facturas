@@ -1,23 +1,46 @@
 import { useState, useEffect } from 'react';
-import { getInvoices } from '../../services/apiService';
+import { getInvoices, getCompany } from '../../services/apiService';
+import { downloadInvoicePDF } from '../../services/invoiceService';
 
 export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [filters, setFilters] = useState({
-    search: '', status: '', start_date: '', end_date: ''
+    company_id: '',
+    search: '',
+    status: '',
+    start_date: '',
+    end_date: ''
   });
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
 
   useEffect(() => {
+    loadCompanies();
+  }, []);
+
+  useEffect(() => {
     loadInvoices();
-  }, [filters.status, filters.start_date, filters.end_date, pagination.page]);
+  }, [filters.company_id, filters.status, filters.start_date, filters.end_date, pagination.page]);
+
+  const loadCompanies = async () => {
+    const res = await getCompany();
+    if (res.success) {
+      const compArray = Array.isArray(res.data) ? res.data : [res.data].filter(Boolean);
+      setCompanies(compArray);
+      if (compArray.length > 0 && !filters.company_id) {
+        setFilters(prev => ({ ...prev, company_id: compArray[0].id }));
+      }
+    }
+  };
 
   const loadInvoices = async () => {
     setLoading(true);
     const params = {
       page: pagination.page,
-      limit: 15,
+      limit: 10,
+      company_id: filters.company_id || undefined,
       status: filters.status || undefined,
       start_date: filters.start_date || undefined,
       end_date: filters.end_date || undefined,
@@ -38,19 +61,49 @@ export default function InvoiceHistory() {
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
+    if (field !== 'search') {
+      setPagination(prev => ({ ...prev, page: 1 }));
+    }
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount || 0);
   };
 
   const formatDate = (date) => {
     if (!date) return '—';
-    return new Date(date).toLocaleDateString('es-CO');
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleDownloadPDF = async (invoice) => {
+    await downloadInvoicePDF(invoice.id);
+  };
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      pagada: 'bg-green-100 text-green-700',
+      anulada: 'bg-red-100 text-red-700',
+      pendiente: 'bg-yellow-100 text-yellow-700'
+    };
+    const labels = {
+      pagada: 'Pagada',
+      anulada: 'Anulada',
+      pendiente: 'Pendiente'
+    };
+    return (
+      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${styles[status] || styles.pendiente}`}>
+        {labels[status] || 'Pendiente'}
+      </span>
+    );
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Encabezado */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-800">Historial de Facturas</h2>
         <span className="text-sm text-gray-500">
@@ -59,46 +112,72 @@ export default function InvoiceHistory() {
       </div>
 
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="lg:col-span-1">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Empresa</label>
+          <select
+            value={filters.company_id}
+            onChange={e => handleFilterChange('company_id', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Todas las empresas</option>
+            {companies.map(comp => (
+              <option key={comp.id} value={comp.id}>{comp.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="lg:col-span-2">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Buscar</label>
           <input
             type="text"
-            placeholder="Buscar por cliente, NIT o número de factura..."
+            placeholder="Cliente o número de factura..."
             value={filters.search}
             onChange={e => handleFilterChange('search', e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
-        <div>
+        <div className="lg:col-span-1">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Estado</label>
           <select
             value={filters.status}
             onChange={e => handleFilterChange('status', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">Todos los estados</option>
+            <option value="">Todos</option>
             <option value="pendiente">Pendiente</option>
             <option value="pagada">Pagada</option>
             <option value="anulada">Anulada</option>
           </select>
         </div>
-        <div>
+        <div className="lg:col-span-1">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Desde</label>
           <input
             type="date"
             value={filters.start_date}
             onChange={e => handleFilterChange('start_date', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
-        <div>
+        <div className="lg:col-span-1">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Hasta</label>
           <input
             type="date"
             value={filters.end_date}
             onChange={e => handleFilterChange('end_date', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
-            onBlur={handleSearch}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
+      </div>
+
+      {/* Botón buscar */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleSearch}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Buscar
+        </button>
       </div>
 
       {/* Tabla */}
@@ -109,42 +188,48 @@ export default function InvoiceHistory() {
           No hay facturas registradas
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
           <table className="w-full text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left">Factura</th>
-                <th className="px-4 py-3 text-left">Cliente</th>
-                <th className="px-4 py-3 text-left">Fecha</th>
-                <th className="px-4 py-3 text-right">Total</th>
-                <th className="px-4 py-3 text-center">Estado</th>
-                <th className="px-4 py-3 text-right">Pago</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Número</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Cliente</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Fecha</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Estado</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {invoices.map(inv => (
-                <tr key={inv.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{inv.invoice_number}</td>
+                <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-gray-900">{inv.invoice_number}</td>
                   <td className="px-4 py-3">
-                    <p className="font-medium">{inv.customer?.name || '—'}</p>
-                    <p className="text-xs text-gray-400">{inv.customer?.identification || ''}</p>
+                    <p className="font-medium text-gray-900">{inv.customer?.name || '—'}</p>
+                    <p className="text-xs text-gray-500">{inv.customer?.identification || ''}</p>
                   </td>
-                  <td className="px-4 py-3">{formatDate(inv.issue_date)}</td>
-                  <td className="px-4 py-3 text-right font-medium">
+                  <td className="px-4 py-3 text-right font-semibold text-gray-900">
                     {formatCurrency(inv.total)}
                   </td>
+                  <td className="px-4 py-3 text-gray-600">{formatDate(inv.issue_date)}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      inv.status === 'pagada' ? 'bg-green-100 text-green-700' :
-                      inv.status === 'anulada' ? 'bg-red-100 text-red-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {inv.status === 'pagada' ? 'Pagada' :
-                       inv.status === 'anulada' ? 'Anulada' : 'Pendiente'}
-                    </span>
+                    {getStatusBadge(inv.status)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-500 text-xs">
-                    {inv.payment_method}
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => setSelectedInvoice(inv)}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => handleDownloadPDF(inv)}
+                        className="px-3 py-1.5 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
+                      >
+                        Descargar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -153,26 +238,184 @@ export default function InvoiceHistory() {
 
           {/* Paginación */}
           {pagination.pages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
                 disabled={pagination.page <= 1}
-                className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100 disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Anterior
               </button>
               <span className="text-sm text-gray-600">
-                Página {pagination.page} de {pagination.pages}
+                Página <span className="font-medium">{pagination.page}</span> de <span className="font-medium">{pagination.pages}</span>
               </span>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.pages, prev.page + 1) }))}
                 disabled={pagination.page >= pagination.pages}
-                className="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100 disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Siguiente
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Modal de Detalles */}
+      {selectedInvoice && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900">Detalles de Factura</h3>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-6 space-y-6">
+              {/* Datos principales */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase">Número de Factura</p>
+                  <p className="font-semibold text-gray-900">{selectedInvoice.invoice_number}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase">Estado</p>
+                  {getStatusBadge(selectedInvoice.status)}
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase">Fecha de Emisión</p>
+                  <p className="text-gray-900">{formatDate(selectedInvoice.issue_date)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase">Forma de Pago</p>
+                  <p className="text-gray-900 capitalize">{selectedInvoice.payment_form}</p>
+                </div>
+              </div>
+
+              {/* Cliente */}
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Datos del Cliente</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-500">Nombre</p>
+                    <p className="font-medium">{selectedInvoice.customer?.name || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">NIT/Identificación</p>
+                    <p className="font-medium">{selectedInvoice.customer?.identification || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Email</p>
+                    <p className="font-medium">{selectedInvoice.customer?.email || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Teléfono</p>
+                    <p className="font-medium">{selectedInvoice.customer?.phone || '—'}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-500">Dirección</p>
+                    <p className="font-medium">{selectedInvoice.customer?.address || '—'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Items */}
+              {selectedInvoice.items && selectedInvoice.items.length > 0 && (
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Items</h4>
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-2 py-2 text-left text-xs text-gray-500">Descripción</th>
+                        <th className="px-2 py-2 text-right text-xs text-gray-500">Cant.</th>
+                        <th className="px-2 py-2 text-right text-xs text-gray-500">Precio</th>
+                        <th className="px-2 py-2 text-right text-xs text-gray-500">IVA</th>
+                        <th className="px-2 py-2 text-right text-xs text-gray-500">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {selectedInvoice.items.map((item, idx) => (
+                        <tr key={idx}>
+                          <td className="px-2 py-2">{item.description}</td>
+                          <td className="px-2 py-2 text-right">{item.quantity}</td>
+                          <td className="px-2 py-2 text-right">{formatCurrency(item.unit_price)}</td>
+                          <td className="px-2 py-2 text-right">{item.iva_rate}%</td>
+                          <td className="px-2 py-2 text-right font-medium">{formatCurrency(item.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Totales */}
+              <div className="border-t pt-4">
+                <div className="flex justify-end">
+                  <div className="w-64 space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Subtotal</span>
+                      <span className="font-medium">{formatCurrency(selectedInvoice.subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">IVA</span>
+                      <span className="font-medium">{formatCurrency(selectedInvoice.iva_amount)}</span>
+                    </div>
+                    {selectedInvoice.discount_amount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Descuento</span>
+                        <span className="font-medium text-red-600">-{formatCurrency(selectedInvoice.discount_amount)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between border-t pt-2 font-bold text-base">
+                      <span>Total</span>
+                      <span>{formatCurrency(selectedInvoice.total)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Datos DIAN */}
+              {selectedInvoice.cufe && (
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Información DIAN</h4>
+                  <div className="text-xs space-y-1">
+                    <p><span className="text-gray-500">CUFE:</span> <span className="font-mono text-gray-700">{selectedInvoice.cufe}</span></p>
+                    {selectedInvoice.uuid && <p><span className="text-gray-500">UUID:</span> <span className="font-mono text-gray-700">{selectedInvoice.uuid}</span></p>}
+                  </div>
+                </div>
+              )}
+
+              {/* Notas */}
+              {selectedInvoice.notes && (
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-1">Notas</h4>
+                  <p className="text-sm text-gray-600">{selectedInvoice.notes}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => handleDownloadPDF(selectedInvoice)}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+              >
+                Descargar PDF
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
