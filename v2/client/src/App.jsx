@@ -41,7 +41,7 @@ function App() {
           <div className="flex items-center justify-between h-16">
             {/* Logo + Title */}
             <div className="flex items-center gap-3">
-              <img src="/logoSF.png" alt="Logo" className="h-10 w-auto rounded" />
+              <img src="/logoF.png" alt="Logo" className="h-10 w-auto rounded" />
               <h1 className="text-xl font-bold">MATE Facturas</h1>
             </div>
 
