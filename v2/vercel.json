@@ -3,6 +3,7 @@
   "buildCommand": "npm run build --prefix client",
   "outputDirectory": "client/dist",
   "routes": [
+    { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
