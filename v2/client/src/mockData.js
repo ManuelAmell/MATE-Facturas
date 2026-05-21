@@ -1,12 +1,12 @@
 // Datos mock para permitir funcionamiento sin backend
 export const mockCompany = {
   id: 1,
-  name: "EMPRESA DEMOSTRACIÓN SAS",
-  nit: "900.123.456-7",
-  address: "Calle 123 #45-67, Oficina 301",
-  phone: "+57 1 234 5678",
-  email: "info@empresa-demo.com",
-  resolution_number: "12345678901234567890",
+  name: "AGUAS SEBMAT",
+  nit: "-----------",
+  address: "-----------",
+  phone: "----------",
+  email: "----------",
+  resolution_number: "----------",
   regimen: "Común"
 };
 
@@ -24,24 +24,16 @@ export const mockProducts = [
   {
     id: 1,
     code: "PROD001",
-    description: "Producto de ejemplo 1",
-    unit_price: 10000,
-    iva_rate: 19,
+    description: "Bolsa de hielo",
+    unit_price: 2000,
+    iva_rate: 0,
     unit: "UND"
   },
   {
     id: 2,
     code: "PROD002",
-    description: "Producto de ejemplo 2", 
+    description: "Botellon de agua (20L)", 
     unit_price: 25000,
-    iva_rate: 19,
-    unit: "UND"
-  },
-  {
-    id: 3,
-    code: "SERV001",
-    description: "Servicio de ejemplo",
-    unit_price: 50000,
     iva_rate: 0,
     unit: "UND"
   }
@@ -78,13 +70,13 @@ export const mockApiService = {
       payment_form: 'contado',
       payment_method: 'efectivo',
       currency: 'COP',
-      notes: 'Factura de demostración',
+      notes: 'Factura',
       terms: 'Pago inmediato',
       items: [
         {
           id: `item-${id}-1`,
           code: 'PROD001',
-          description: 'Producto de ejemplo 1',
+          description: 'Producto 1',
           quantity: 2,
           unit_price: 10000,
           unit: 'UND',
