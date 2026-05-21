@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoiceService } from '../../services/invoiceService';
-import { getProducts } from '../../services/apiService';
+import { mockApiService } from '../../mockData';
 
 export default function InvoiceForm({
   formData, onAddItem, onRemoveItem, onUpdateItem,
@@ -26,12 +26,12 @@ export default function InvoiceForm({
     }
   }, [activeTab]);
 
-  const loadProducts = async (search = '') => {
-    const params = { limit: 20 };
-    if (search) params.search = search;
-    const res = await getProducts(params);
-    if (res.success) setSavedProducts(res.data);
-  };
+    const loadProducts = async (search = '') => {
+      const params = { limit: 20 };
+      if (search) params.search = search;
+      const res = await mockApiService.getProducts(params);
+      if (res.success) setSavedProducts(res.data);
+    };
 
   const handleAddItem = () => {
     if (newItem.unit_price <= 0) {

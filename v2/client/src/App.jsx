@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import InvoicePage from './pages/InvoicePage';
 import InvoiceHistory from './components/invoice/InvoiceHistory';
 import SettingsModal from './components/settings/SettingsModal';
-import { getCompany } from './services/apiService';
+import { mockCompany } from './mockData';
 
 function App() {
   const [activeView, setActiveView] = useState('invoice');
@@ -15,10 +15,8 @@ function App() {
   }, []);
 
   const loadCompany = async () => {
-    const res = await getCompany();
-    if (res.success && res.data) {
-      setCompany(res.data);
-    }
+    // Use mock data instead of calling the backend
+    setCompany(mockCompany);
     setLoading(false);
   };
 

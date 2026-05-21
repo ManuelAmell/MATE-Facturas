@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getInvoices, getCustomersList, getInvoiceById } from '../../services/apiService';
+import { mockApiService } from '../../mockData';
 import { downloadInvoicePDF } from '../../services/invoiceService';
 import InvoicePreview from './InvoicePreview';
 
@@ -30,7 +30,7 @@ export default function InvoiceHistory() {
 
   const loadCustomers = async () => {
     try {
-      const res = await getCustomersList();
+      const res = await mockApiService.getCustomersList();
       if (res.success) {
         setCustomers(res.data || []);
       }
@@ -52,10 +52,10 @@ export default function InvoiceHistory() {
         end_date: filters.end_date || undefined,
         search: filters.search || undefined
       };
-      const res = await getInvoices(params);
+      const res = await mockApiService.getInvoices(params);
       if (res.success) {
         setInvoices(res.data || []);
-        setPagination(prev => ({ ...prev, ...res.pagination }));
+        setPagination(prev => ({ ...prev, page: 1, pages: 1 })); // Mock doesn't return pagination
       } else {
         setError(res.message || 'Error al cargar facturas');
       }
@@ -65,6 +65,17 @@ export default function InvoiceHistory() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewInvoice = async (invoice) => {
+    setLoadingDetail(true);
+    const res = await mockApiService.getInvoiceById(invoice.id);
+    if (res.success) {
+      setSelectedInvoice(res.data);
+    } else {
+      setError(res.message || 'Error al cargar detalles');
+    }
+    setLoadingDetail(false);
   };
 
   const handleSearch = () => {
@@ -97,17 +108,6 @@ export default function InvoiceHistory() {
     if (!result.success) {
       setError(result.message || 'Error al descargar PDF');
     }
-  };
-
-  const handleViewInvoice = async (invoice) => {
-    setLoadingDetail(true);
-    const res = await getInvoiceById(invoice.id);
-    if (res.success) {
-      setSelectedInvoice(res.data);
-    } else {
-      setError(res.message || 'Error al cargar detalles');
-    }
-    setLoadingDetail(false);
   };
 
   const getStatusBadge = (status) => {

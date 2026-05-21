@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import CompanySettings from './CompanySettings';
 import ProductsManager from './ProductsManager';
-import { getCompany } from '../../services/apiService';
+import { mockApiService } from '../../mockData';
 
 export default function SettingsModal({ isOpen, onClose, onCompanyUpdate }) {
   const [activeTab, setActiveTab] = useState('company');
@@ -11,12 +11,12 @@ export default function SettingsModal({ isOpen, onClose, onCompanyUpdate }) {
     if (isOpen) loadCompanyId();
   }, [isOpen]);
 
-  const loadCompanyId = async () => {
-    const res = await getCompany();
-    if (res.success && res.data) {
-      setCompanyId(res.data.id);
-    }
-  };
+    const loadCompanyId = async () => {
+      const res = await mockApiService.getCompany();
+      if (res.success && res.data) {
+        setCompanyId(res.data.id);
+      }
+    };
 
   const handleCompanySaved = (updatedCompany) => {
     if (onCompanyUpdate) {

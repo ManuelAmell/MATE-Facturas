@@ -1,17 +1,16 @@
 import { generateInvoicePDF } from '../utils/pdfGenerator';
-
-const API_URL = '/api';
+import { mockApiService } from '../mockData';
 
 /**
  * Obtiene los datos mock (demo)
  */
 async function getMockData() {
   try {
-    const response = await fetch(`${API_URL}/mock/data`);
-    return await response.json();
+    // En lugar de llamar al backend, usamos los datos mock directamente
+    return { success: true, data: {} }; // Los datos específicos se obtienen mediante otras funciones
   } catch (error) {
     console.error('Error fetching mock data:', error);
-    return null;
+    return { success: false, message: error.message };
   }
 }
 
@@ -20,9 +19,8 @@ async function getMockData() {
  */
 async function getInvoices(params = {}) {
   try {
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${API_URL}/invoices?${queryString}`);
-    return await response.json();
+    // Usamos el servicio mock en lugar de llamar al backend
+    return await mockApiService.getInvoices(params);
   } catch (error) {
     console.error('Error fetching invoices:', error);
     return { success: false, data: [] };
@@ -34,11 +32,11 @@ async function getInvoices(params = {}) {
  */
 async function getInvoiceById(id) {
   try {
-    const response = await fetch(`${API_URL}/invoices/${id}`);
-    return await response.json();
+    // Usamos el servicio mock en lugar de llamar al backend
+    return await mockApiService.getInvoiceById(id);
   } catch (error) {
     console.error('Error fetching invoice:', error);
-    return { success: false };
+    return { success: false, message: error.message };
   }
 }
 
@@ -47,14 +45,9 @@ async function getInvoiceById(id) {
  */
 async function createInvoice(invoiceData) {
   try {
-    const response = await fetch(`${API_URL}/invoices`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(invoiceData)
-    });
-    return await response.json();
+    // En modo mock, simplemente retornamos éxito ya que no guardamos nada
+    console.log('Mock: Creating invoice', invoiceData);
+    return { success: true, data: { id: Date.now(), ...invoiceData } };
   } catch (error) {
     console.error('Error creating invoice:', error);
     return { success: false, message: error.message };
@@ -66,14 +59,9 @@ async function createInvoice(invoiceData) {
  */
 async function updateInvoice(id, invoiceData) {
   try {
-    const response = await fetch(`${API_URL}/invoices/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(invoiceData)
-    });
-    return await response.json();
+    // En modo mock, simplemente retornamos éxito ya que no guardamos nada
+    console.log('Mock: Updating invoice', id, invoiceData);
+    return { success: true, data: { id, ...invoiceData } };
   } catch (error) {
     console.error('Error updating invoice:', error);
     return { success: false, message: error.message };
@@ -85,14 +73,9 @@ async function updateInvoice(id, invoiceData) {
  */
 async function cancelInvoice(id, reason = '') {
   try {
-    const response = await fetch(`${API_URL}/invoices/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ reason })
-    });
-    return await response.json();
+    // En modo mock, simplemente retornamos éxito ya que no guardamos nada
+    console.log('Mock: Cancelling invoice', id, reason);
+    return { success: true };
   } catch (error) {
     console.error('Error cancelling invoice:', error);
     return { success: false, message: error.message };
@@ -104,6 +87,7 @@ async function cancelInvoice(id, reason = '') {
  */
 async function downloadPDF(id) {
   try {
+    // Usamos el servicio mock para obtener la factura
     const res = await getInvoiceById(id);
     if (!res.success || !res.data) {
       throw new Error(res.message || 'No se pudo obtener la factura');

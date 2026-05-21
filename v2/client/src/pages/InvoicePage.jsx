@@ -3,7 +3,7 @@ import InvoiceForm from '../components/invoice/InvoiceForm';
 import InvoicePreview from '../components/invoice/InvoicePreview';
 import CustomerForm from '../components/invoice/CustomerForm';
 import { invoiceService } from '../services/invoiceService';
-import { createInvoice } from '../services/apiService';
+import { mockCompany } from '../mockData';
 
 export default function InvoicePage({ company }) {
   const [formData, setFormData] = useState({
@@ -20,9 +20,10 @@ export default function InvoicePage({ company }) {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (company) {
-      setFormData(prev => ({ ...prev, company }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      company: company || mockCompany
+    }));
   }, [company]);
 
   const handleCustomerChange = (customer) => {
@@ -83,57 +84,19 @@ export default function InvoicePage({ company }) {
       alert('Agregue al menos un producto');
       return;
     }
-    if (!company) {
-      alert('No hay empresaemisora configurada');
-      return;
-    }
 
     setSaving(true);
     setMessage('');
 
-    const invoicePayload = {
-      company_id: company.id,
-      customer: {
-        company_id: company.id,
-        name: formData.customer.name,
-        identification: formData.customer.identification || 'Pendiente',
-        email: formData.customer.email,
-        phone: formData.customer.phone,
-        address: formData.customer.address,
-        municipality: formData.customer.municipality,
-        department: formData.customer.department
-      },
-      issue_date: new Date().toISOString().split('T')[0],
-      payment_form: formData.payment_form,
-      payment_method: formData.payment_method,
-      currency: formData.currency,
-      notes: formData.notes,
-      terms: formData.terms,
-      items: formData.items.map((item, index) => ({
-        line_number: index + 1,
-        code: item.code,
-        description: item.description || 'Producto',
-        quantity: item.quantity,
-        unit: item.unit || 'UND',
-        unit_price: item.unit_price,
-        iva_rate: item.iva_rate || 0,
-        discount_percent: item.discount_percent || 0
-      }))
-    };
-
-    const res = await createInvoice(invoicePayload);
-    if (res.success) {
-      setMessage('Factura creada exitosamente');
-      setFormData(prev => ({
-        ...prev,
-        customer: null,
-        items: [],
-        notes: '',
-        terms: ''
-      }));
-    } else {
-      setMessage('Error: ' + (res.message || 'No se pudo crear la factura'));
-    }
+    // Simular guardado exitoso sin backend
+    setMessage('Factura creada exitosamente (modo demostración)');
+    setFormData(prev => ({
+      ...prev,
+      customer: null,
+      items: [],
+      notes: '',
+      terms: ''
+    }));
     setSaving(false);
   };
 
@@ -169,7 +132,7 @@ export default function InvoicePage({ company }) {
               onPrint={handlePrint}
               onSave={handleSaveInvoice}
               saving={saving}
-              company={company}
+              company={formData.company}
               totals={totals}
             />
           </div>
@@ -179,7 +142,7 @@ export default function InvoicePage({ company }) {
         <div className="hidden lg:block">
           <div className="sticky top-6">
             <InvoicePreview
-              company={company}
+              company={formData.company}
               customer={formData.customer}
               items={formData.items}
               totals={totals}
@@ -191,22 +154,22 @@ export default function InvoicePage({ company }) {
             />
           </div>
         </div>
-      </div>
 
-      {/* Preview móvil (debajo del formulario) */}
-      <div className="lg:hidden">
-        <InvoicePreview
-          company={company}
-          customer={formData.customer}
-          items={formData.items}
-          totals={totals}
-          payment_form={formData.payment_form}
-          payment_method={formData.payment_method}
-          currency={formData.currency}
-          notes={formData.notes}
-          terms={formData.terms}
-          isMobile={true}
-        />
+        {/* Preview móvil (debajo del formulario) */}
+        <div className="lg:hidden">
+          <InvoicePreview
+            company={formData.company}
+            customer={formData.customer}
+            items={formData.items}
+            totals={totals}
+            payment_form={formData.payment_form}
+            payment_method={formData.payment_method}
+            currency={formData.currency}
+            notes={formData.notes}
+            terms={formData.terms}
+            isMobile={true}
+          />
+        </div>
       </div>
     </div>
   );

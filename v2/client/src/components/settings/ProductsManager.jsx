@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/apiService';
+import { mockApiService } from '../../mockData';
 
 const emptyProduct = {
   code: '', description: '', unit_price: '', unit: 'UND', iva_rate: 0, cost: ''
@@ -29,14 +29,14 @@ export default function ProductsManager({ companyId }) {
     if (companyId) loadProducts();
   }, [companyId]);
 
-  const loadProducts = async (term = '') => {
-    setLoading(true);
-    const params = { company_id: companyId };
-    if (term) params.search = term;
-    const res = await getProducts(params);
-    if (res.success) setProducts(res.data);
-    setLoading(false);
-  };
+    const loadProducts = async (term = '') => {
+      setLoading(true);
+      const params = { company_id: companyId };
+      if (term) params.search = term;
+      const res = await mockApiService.getProducts(params);
+      if (res.success) setProducts(res.data);
+      setLoading(false);
+    };
 
   const handleSearch = () => loadProducts(search);
 
@@ -65,41 +65,41 @@ export default function ProductsManager({ companyId }) {
     setShowForm(false);
   };
 
-  const handleSave = async () => {
-    if (!form.unit_price) {
-      alert('El precio es obligatorio');
-      return;
-    }
-    const payload = {
-      company_id: companyId,
-      code: form.code || null,
-      description: form.description || null,
-      unit_price: parseFloat(form.unit_price),
-      unit: form.unit || 'UND',
-      iva_rate: parseFloat(form.iva_rate) || 0,
-      cost: form.cost ? parseFloat(form.cost) : null
+    const handleSave = async () => {
+      if (!form.unit_price) {
+        alert('El precio es obligatorio');
+        return;
+      }
+      const payload = {
+        company_id: companyId,
+        code: form.code || null,
+        description: form.description || null,
+        unit_price: parseFloat(form.unit_price),
+        unit: form.unit || 'UND',
+        iva_rate: parseFloat(form.iva_rate) || 0,
+        cost: form.cost ? parseFloat(form.cost) : null
+      };
+
+      let res;
+      if (editingId) {
+        res = await mockApiService.updateProduct(editingId, payload);
+      } else {
+        res = await mockApiService.createProduct(payload);
+      }
+
+      if (res.success) {
+        handleCancel();
+        loadProducts(search);
+      } else {
+        alert('Error: ' + (res.message || 'No se pudo guardar'));
+      }
     };
 
-    let res;
-    if (editingId) {
-      res = await updateProduct(editingId, payload);
-    } else {
-      res = await createProduct(payload);
-    }
-
-    if (res.success) {
-      handleCancel();
-      loadProducts(search);
-    } else {
-      alert('Error: ' + (res.message || 'No se pudo guardar'));
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('¿Eliminar este producto?')) return;
-    const res = await deleteProduct(id);
-    if (res.success) loadProducts(search);
-  };
+    const handleDelete = async (id) => {
+      if (!confirm('¿Eliminar este producto?')) return;
+      const res = await mockApiService.deleteProduct(id);
+      if (res.success) loadProducts(search);
+    };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-CO', {

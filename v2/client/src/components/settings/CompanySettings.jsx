@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getCompany, updateCompany } from '../../services/apiService';
+import { mockApiService } from '../../mockData';
 import CompanyPreview from './CompanyPreview';
 
 export default function CompanySettings({ onSave, onClose }) {
@@ -15,54 +15,54 @@ export default function CompanySettings({ onSave, onClose }) {
     loadCompany();
   }, []);
 
-  const loadCompany = async () => {
-    const res = await getCompany();
-    if (res.success && res.data) {
-      const c = res.data;
-      setCompany(c);
-      setForm({
-        name: c.name || '',
-        nit: c.nit || '',
-        phone: c.phone || '',
-        address: c.address || '',
-        municipality: c.municipality || '',
-        email: c.email || '',
-        department: c.department || ''
-      });
-    }
-  };
+    const loadCompany = async () => {
+      const res = await mockApiService.getCompany();
+      if (res.success && res.data) {
+        const c = res.data;
+        setCompany(c);
+        setForm({
+          name: c.name || '',
+          nit: c.nit || '',
+          phone: c.phone || '',
+          address: c.address || '',
+          municipality: c.municipality || '',
+          email: c.email || '',
+          department: c.department || ''
+        });
+      }
+    };
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
-    if (!company) {
-      alert('No hay empresa configurada');
-      return;
-    }
-    setSaving(true);
-    setMessage('');
-    try {
-      const res = await updateCompany(company.id, form);
-      if (res.success) {
-        setCompany(res.data);
-        setMessage('Datos guardados correctamente');
-        if (onSave) {
-          onSave(res.data);
-        }
-        // Cerrar modal después de 1 segundo
-        setTimeout(() => {
-          if (onClose) onClose();
-        }, 1000);
-      } else {
-        setMessage('Error al guardar: ' + (res.message || 'desconocido'));
+    const handleSave = async () => {
+      if (!company) {
+        alert('No hay empresa configurada');
+        return;
       }
-    } catch (error) {
-      setMessage('Error de conexión');
-    }
-    setSaving(false);
-  };
+      setSaving(true);
+      setMessage('');
+      try {
+        const res = await mockApiService.updateCompany(company.id, form);
+        if (res.success) {
+          setCompany(res.data);
+          setMessage('Datos guardados correctamente');
+          if (onSave) {
+            onSave(res.data);
+          }
+          // Cerrar modal después de 1 segundo
+          setTimeout(() => {
+            if (onClose) onClose();
+          }, 1000);
+        } else {
+          setMessage('Error al guardar: ' + (res.message || 'desconocido'));
+        }
+      } catch (error) {
+        setMessage('Error de conexión');
+      }
+      setSaving(false);
+    };
 
   const previewCompany = company ? { ...company, ...form } : form;
 
