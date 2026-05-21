@@ -241,7 +241,7 @@ export default function InvoicePreview({
         {/* ============================================================
             FOOTER
             ============================================================ */}
-            <img src="public/MetodoPago.png" alt="Logo" className="mx-auto mb-2" />
+            <img src="/MetodoPago.png" alt="Logo" className="mx-auto mb-2" />
         <div className="border-t border-gray-200 pt-4 text-center">
           <p className="text-xs text-gray-400">
             Esta factura es un documento electrónico de venta según normativa DIAN.
