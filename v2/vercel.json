@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm install",
-  "buildCommand": "npm run build --workspace=client",
+  "installCommand": "npm install --prefix client",
+  "buildCommand": "npm run build --prefix client",
   "outputDirectory": "client/dist",
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
